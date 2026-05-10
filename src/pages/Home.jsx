@@ -8,43 +8,39 @@ function Home() {
   return (
     <div>
 
-      {/* HERO SECTION WITH BACKGROUND */}
+      {/* HERO SECTION */}
       <div
         className="text-white text-center d-flex flex-column justify-content-center align-items-center"
         style={{
           height: "90vh",
-          backgroundImage: "url('https://images.unsplash.com/photo-1521334884684-d80222895322')",
+          backgroundImage:
+            "url('https://images.unsplash.com/photo-1521334884684-d80222895322')",
           backgroundSize: "cover",
           backgroundPosition: "center",
-          position: "relative"
+          position: "relative",
         }}
       >
+        {/* overlay */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundColor: "rgba(0,0,0,0.6)",
+          }}
+        ></div>
 
-        {/* dark overlay */}
-        <div style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: "rgba(0,0,0,0.6)"
-        }}></div>
-
-        {/* content */}
         <div style={{ zIndex: 2 }}>
-
           <h1 className="display-2 fw-bold">StyleHub</h1>
-
           <p className="lead mb-4">
-            Discover Fashion That Defines You
+            Your Ultimate Fashion Destination
           </p>
 
           {/* SEARCH BAR */}
-          <div className="d-flex justify-content-center mb-4">
+          <div className="d-flex justify-content-center mb-3">
             <input
               type="text"
-              className="form-control w-50"
-              placeholder="Search for clothes, shoes, accessories..."
+              className="form-control w-75"
+              placeholder="Search clothes, shoes, accessories..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -53,35 +49,134 @@ function Home() {
           <Link to="/products" className="btn btn-warning btn-lg px-4">
             Shop Now
           </Link>
+        </div>
+      </div>
+
+      {/* FEATURES SECTION */}
+      <div className="container text-center my-5">
+
+        <h2 className="fw-bold mb-4">Why Choose StyleHub?</h2>
+
+        <div className="row">
+
+          <div className="col-md-3">
+            <div className="p-3 shadow rounded">
+              <h4>⚡ Fast UI</h4>
+              <p>Lightning fast React SPA</p>
+            </div>
+          </div>
+
+          <div className="col-md-3">
+            <div className="p-3 shadow rounded">
+              <h4>🔒 Secure</h4>
+              <p>Firebase protected data</p>
+            </div>
+          </div>
+
+          <div className="col-md-3">
+            <div className="p-3 shadow rounded">
+              <h4>🛍️ Trendy</h4>
+              <p>Latest fashion collection</p>
+            </div>
+          </div>
+
+          <div className="col-md-3">
+            <div className="p-3 shadow rounded">
+              <h4>📱 Responsive</h4>
+              <p>Mobile-friendly design</p>
+            </div>
+          </div>
 
         </div>
       </div>
 
-      {/* FEATURES */}
+      {/* PROMO BANNER */}
+      <div className="bg-dark text-white text-center py-5">
+        <h2>🔥 Big Sale is Live!</h2>
+        <p>Up to 50% off on selected items</p>
+        <Link to="/products" className="btn btn-warning">
+          Explore Deals
+        </Link>
+      </div>
+
+      {/* CATEGORIES */}
       <div className="container text-center my-5">
 
-        <h2 className="fw-bold">Why StyleHub?</h2>
+        <h2 className="fw-bold">Shop by Category</h2>
+
+        <div className="row mt-4">
+
+          <div className="col-md-3">
+            <div className="p-3 border rounded">👗 Women</div>
+          </div>
+
+          <div className="col-md-3">
+            <div className="p-3 border rounded">👕 Men</div>
+          </div>
+
+          <div className="col-md-3">
+            <div className="p-3 border rounded">👟 Shoes</div>
+          </div>
+
+          <div className="col-md-3">
+            <div className="p-3 border rounded">👜 Accessories</div>
+          </div>
+
+        </div>
+      </div>
+
+      {/* STATS SECTION */}
+      <div className="bg-light py-5">
+
+        <div className="container text-center">
+
+          <div className="row">
+
+            <div className="col-md-4">
+              <h2>10K+</h2>
+              <p>Happy Customers</p>
+            </div>
+
+            <div className="col-md-4">
+              <h2>500+</h2>
+              <p>Products</p>
+            </div>
+
+            <div className="col-md-4">
+              <h2>50+</h2>
+              <p>Brands</p>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      {/* TESTIMONIALS */}
+      <div className="container text-center my-5">
+
+        <h2 className="fw-bold">What Customers Say</h2>
 
         <div className="row mt-4">
 
           <div className="col-md-4">
             <div className="p-3 shadow rounded">
-              <h4>👕 Fashion Items</h4>
-              <p>Latest trendy clothing collection</p>
+              ⭐⭐⭐⭐⭐
+              <p>Best shopping experience ever!</p>
             </div>
           </div>
 
           <div className="col-md-4">
             <div className="p-3 shadow rounded">
-              <h4>⚡ Fast UI</h4>
-              <p>Smooth React SPA experience</p>
+              ⭐⭐⭐⭐⭐
+              <p>Very fast and smooth website.</p>
             </div>
           </div>
 
           <div className="col-md-4">
             <div className="p-3 shadow rounded">
-              <h4>🔒 Secure Firebase</h4>
-              <p>Data stored in Firestore</p>
+              ⭐⭐⭐⭐⭐
+              <p>Love the UI design!</p>
             </div>
           </div>
 
@@ -89,33 +184,28 @@ function Home() {
 
       </div>
 
-      {/* CATEGORY SECTION */}
-      <div className="bg-light py-5">
+      {/* NEWSLETTER */}
+      <div className="bg-dark text-white text-center py-5">
 
-        <div className="container text-center">
+        <h3>Subscribe for Updates</h3>
 
-          <h2 className="fw-bold">Categories</h2>
+        <input
+          type="email"
+          placeholder="Enter your email"
+          className="form-control w-50 mx-auto my-3"
+        />
 
-          <div className="row mt-4">
-
-            <div className="col-md-3">👗 Women</div>
-            <div className="col-md-3">👕 Men</div>
-            <div className="col-md-3">👟 Shoes</div>
-            <div className="col-md-3">👜 Accessories</div>
-
-          </div>
-
-        </div>
+        <button className="btn btn-warning">
+          Subscribe
+        </button>
 
       </div>
 
       {/* FOOTER */}
-      <footer className="bg-dark text-white text-center py-4 mt-5">
+      <footer className="bg-black text-white text-center py-4">
 
         <h5>StyleHub</h5>
-
         <p>© 2026 All Rights Reserved</p>
-
         <p>Built with React + Firebase</p>
 
       </footer>
