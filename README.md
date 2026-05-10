@@ -94,34 +94,36 @@ npm run dev
 
 * Home Page
 
-![home page](home1.png)
+![home page](./src/assets/screenshots/home1.png)
+![home page](./src/assets/screenshots/home2.png)
+![home page](./src/assets/screenshots/home3.png)
 
 * Create Page
 
-![create item](createitem.png)
+![create item](./src/assets/screenshots/createitem.png)
 
 * View Items Page
 
-![view item1](viewitem1.png)
-![view item2](viewitem2.png)
-![view item3](viewitem3.png)
+![view item1](./src/assets/screenshots/viewitem1.png)
+![view item2](./src/assets/screenshots/viewitem2.png)
+![view item3](./src/assets/screenshots/viewitem3.png)
 
 * Single Item Page
 
-![single page item](singlepageitem.png)
+![single page item](./src/assets/screenshots/singlepageitem.png)
 
 * Edit Page
 
-![edit page](editpage.png)
+![edit page](./src/assets/screenshots/editpage.png)
 
 * navbar
 
-![nav bar1](navbar1.png)
-![nav bar2](navbar2.png)
+![nav bar1](./src/assets/screenshots/navbar1.png)
+![nav bar2](./src/assets/screenshots/navbar2.png)
 
 * repo pages
 
-![repo page](<repo page.png>)
+![repo page](./src/assets/screenshots/repo%20page.png)
 
 * Firebase Dashboard
 
@@ -138,6 +140,6 @@ Roll No: 70148414
 
 This project demonstrates modern SPA development using React, Firebase Firestore, and deployment using Firebase Hosting.
 
-```
+```png
 
 ---
