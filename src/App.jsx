@@ -1,45 +1,49 @@
-import { Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import Navbar from "./components/Navbar";
+import Layout from "./Layout";
 
-import Home from "./pages/Home";
-import Products from "./pages/Products";
-import AddProduct from "./pages/AddProduct";
-import SingleProduct from "./pages/SingleProduct";
-import EditProduct from "./pages/EditProduct";
+// Pages
+import Products from "./pages/products/Products";
+import AddProduct from "./pages/products/AddProduct";
+import ProductDetails from "./pages/products/ProductDetails";
+
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+
+import AdminDashboard from "./pages/dashboard/AdminDashboard";
+import UserDashboard from "./pages/dashboard/UserDashboard";
+
+import Chat from "./pages/chat/Chat";
 
 function App() {
-
   return (
-
-    <div>
-
-      {/* Navbar */}
-
-      <Navbar />
-
-      {/* Routes */}
+    <BrowserRouter>
 
       <Routes>
 
-        {/* Home Route */}
-        <Route path="/" element={<Home />} />
+        {/* 🔥 ALL PAGES INSIDE LAYOUT */}
+        <Route path="/" element={<Layout />}>
 
-        {/* All Products Route */}
-        <Route path="/products" element={<Products />} />
+          <Route index element={<Products />} />
 
-        {/* Add Product Route */}
-        <Route path="/add-product" element={<AddProduct />} />
+          <Route path="add-product" element={<AddProduct />} />
+          <Route path="product/:id" element={<ProductDetails />} />
 
-        {/* Dynamic Route for Single Product */}
-        <Route path="/product/:id" element={<SingleProduct />} />
+          <Route path="admin" element={<AdminDashboard />} />
+          <Route path="user" element={<UserDashboard />} />
 
-        {/* Dynamic Route for Edit Product */}
-        <Route path="/edit-product/:id" element={<EditProduct />} />
+          <Route path="chat" element={<Chat />} />
+
+          <Route path="login" element={<Login />} />
+          <Route path="register" element={<Register />} />
+          <Route path="forgot-password" element={<ForgotPassword />} />
+
+        </Route>
 
       </Routes>
 
-    </div>
+    </BrowserRouter>
   );
 }
 
