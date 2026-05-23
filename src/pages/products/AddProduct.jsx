@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { addProduct } from "../../firebase/products";
 import { useNavigate } from "react-router-dom";
-
-// 🔥 IMPORTANT: use your auth context (recommended)
 import { useAuth } from "../../context/AuthContext";
 
 function AddProduct() {
-  const { currentUser } = useAuth();
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
@@ -14,18 +13,16 @@ function AddProduct() {
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const navigate = useNavigate();
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!name || !price || !image) {
-      alert("Please fill all required fields!");
+    if (!user) {
+      alert("Login required");
       return;
     }
 
-    if (!currentUser) {
-      alert("You must be logged in!");
+    if (!name || !price || !image) {
+      alert("Please fill required fields");
       return;
     }
 
@@ -37,25 +34,16 @@ function AddProduct() {
         price,
         image,
         description,
-
-        // 🔥 CRITICAL FIX FOR CHAT SYSTEM
-        sellerId: currentUser.uid,
-
+        sellerId: user.uid,
         createdAt: new Date(),
       });
 
-      alert("✅ Product Added Successfully!");
+      alert("Product added successfully ✔");
 
-      // reset form
-      setName("");
-      setPrice("");
-      setImage("");
-      setDescription("");
-
-      navigate("/dashboard/products");
+      navigate("/products");
 
     } catch (error) {
-      console.log("🔥 FULL ERROR:", error);
+      console.log(error);
       alert(error.message);
     } finally {
       setLoading(false);
@@ -63,12 +51,13 @@ function AddProduct() {
   };
 
   return (
-    <div style={styles.container}>
+    <div style={styles.wrapper}>
+
       <div style={styles.card}>
-        <h2>➕ Add New Clothing Product</h2>
+        <h2 style={styles.title}>➕ Add New Product</h2>
 
         <form onSubmit={handleSubmit} style={styles.form}>
-          
+
           <input
             placeholder="Product Name *"
             value={name}
@@ -97,65 +86,70 @@ function AddProduct() {
             style={styles.textarea}
           />
 
-          <button
-            style={styles.button}
-            disabled={loading}
-            type="submit"
-          >
+          <button type="submit" style={styles.button} disabled={loading}>
             {loading ? "Adding..." : "Add Product"}
           </button>
 
         </form>
       </div>
+
     </div>
   );
 }
 
 const styles = {
-  container: {
+  wrapper: {
+    minHeight: "100vh",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
+    background: "#f4f6f8",
     padding: 20,
   },
 
   card: {
-    width: 350,
-    padding: 20,
-    borderRadius: 15,
+    width: "100%",
+    maxWidth: 420,
     background: "#fff",
-    boxShadow: "0 0 15px rgba(0,0,0,0.1)",
+    padding: 25,
+    borderRadius: 15,
+    boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
+  },
+
+  title: {
+    textAlign: "center",
+    marginBottom: 20,
   },
 
   form: {
     display: "flex",
     flexDirection: "column",
-    gap: 10,
-    marginTop: 10,
+    gap: 12,
   },
 
   input: {
-    padding: 10,
+    padding: 12,
     borderRadius: 8,
-    border: "1px solid #ccc",
+    border: "1px solid #ddd",
     outline: "none",
   },
 
   textarea: {
-    padding: 10,
+    padding: 12,
     borderRadius: 8,
-    border: "1px solid #ccc",
-    outline: "none",
+    border: "1px solid #ddd",
     minHeight: 80,
+    outline: "none",
   },
 
   button: {
-    padding: 10,
-    borderRadius: 8,
-    border: "none",
-    background: "#007bff",
+    padding: 12,
+    background: "#28a745",
     color: "white",
+    border: "none",
+    borderRadius: 8,
     cursor: "pointer",
+    fontWeight: "bold",
   },
 };
 

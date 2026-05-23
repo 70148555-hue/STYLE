@@ -1,10 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../firebase/firebase";
 
-// only ONE import from auth.js
+import { auth } from "../../firebase/firebase";
 import { googleLogin, resetPassword } from "../../firebase/auth";
 
 function Login() {
@@ -26,10 +24,16 @@ function Login() {
 
       const user = userCredential.user;
 
-      localStorage.setItem("user", JSON.stringify(user));
+      // ✅ store session
+      localStorage.setItem("user", JSON.stringify({
+        uid: user.uid,
+        email: user.email
+      }));
 
       alert("Login Successful ✔");
-      navigate("/dashboard");
+
+      // 🔥 IMPORTANT FIX (no reload loop)
+      navigate("/dashboard", { replace: true });
 
     } catch (error) {
       console.log("LOGIN ERROR:", error);
@@ -42,13 +46,17 @@ function Login() {
     try {
       const user = await googleLogin();
 
-      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("user", JSON.stringify({
+        uid: user.uid,
+        email: user.email
+      }));
 
       alert("Google Login Successful ✔");
-      navigate("/dashboard");
+
+      navigate("/dashboard", { replace: true });
 
     } catch (error) {
-      console.log("GOOGLE LOGIN ERROR:", error);
+      console.log(error);
       alert(error.message);
     }
   };
@@ -56,16 +64,14 @@ function Login() {
   // 🔁 RESET PASSWORD
   const handleResetPassword = async () => {
     if (!email) {
-      alert("Please enter email first");
+      alert("Enter email first");
       return;
     }
 
     try {
       await resetPassword(email);
-      alert("Password reset email sent ✔");
-
+      alert("Reset email sent ✔");
     } catch (error) {
-      console.log("RESET ERROR:", error);
       alert(error.message);
     }
   };
@@ -73,10 +79,11 @@ function Login() {
   return (
     <div style={styles.container}>
       <div style={styles.card}>
+
         <h2>🔐 Login</h2>
 
         <form onSubmit={handleLogin} style={styles.form}>
-          
+
           <input
             type="email"
             placeholder="Email"
@@ -96,17 +103,30 @@ function Login() {
           <button type="submit" style={styles.button}>
             Login
           </button>
+
         </form>
 
-        {/* 🔵 GOOGLE LOGIN */}
-        <button onClick={handleGoogleLogin} style={styles.googleBtn}>
+        {/* GOOGLE LOGIN */}
+        <button onClick={handleGoogleLogin} style={styles.google}>
           Continue with Google
         </button>
 
-        {/* 🔁 RESET PASSWORD */}
-        <button onClick={handleResetPassword} style={styles.linkBtn}>
+        {/* RESET PASSWORD */}
+        <button onClick={handleResetPassword} style={styles.link}>
           Forgot Password?
         </button>
+
+        {/* REGISTER NAV */}
+        <p style={{ marginTop: 10 }}>
+          Don't have an account?{" "}
+          <span
+            style={{ color: "blue", cursor: "pointer" }}
+            onClick={() => navigate("/register")}
+          >
+            Register
+          </span>
+        </p>
+
       </div>
     </div>
   );
@@ -117,15 +137,16 @@ const styles = {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    height: "80vh",
+    height: "100vh",
+    background: "#f4f6f8",
   },
 
   card: {
     width: 350,
     padding: 20,
     borderRadius: 12,
-    boxShadow: "0 0 10px rgba(0,0,0,0.1)",
     background: "#fff",
+    boxShadow: "0 0 10px rgba(0,0,0,0.1)",
     textAlign: "center",
   },
 
@@ -150,18 +171,18 @@ const styles = {
     cursor: "pointer",
   },
 
-  googleBtn: {
+  google: {
     marginTop: 10,
     padding: 10,
     background: "red",
     color: "white",
     border: "none",
     borderRadius: 8,
-    cursor: "pointer",
     width: "100%",
+    cursor: "pointer",
   },
 
-  linkBtn: {
+  link: {
     marginTop: 10,
     background: "transparent",
     border: "none",

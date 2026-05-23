@@ -1,186 +1,124 @@
 import { useEffect, useState } from "react";
+import { db } from "../../firebase/firebase";
+import {
+  collection,
+  addDoc,
+  onSnapshot,
+  query,
+  orderBy,
+  serverTimestamp,
+} from "firebase/firestore";
+
 import { useAuth } from "../../context/AuthContext";
 
-import {
-  getUsers,
-  createChatId,
-  sendMessage,
-  listenMessages,
-} from "../../firebase/chat";
-
-export default function Chat() {
-  const { currentUser } = useAuth();
-
-  const [users, setUsers] = useState([]);
-  const [selectedUser, setSelectedUser] = useState(null);
-
-  const [chatId, setChatId] = useState("");
-  const [messages, setMessages] = useState([]);
+function Chat({ selectedUser }) {
+  const { user } = useAuth();
   const [text, setText] = useState("");
+  const [messages, setMessages] = useState([]);
 
-  // 🔒 LOGIN GUARD
-  if (!currentUser) {
-    return <h3>Please login to use chat</h3>;
-  }
+  if (!user || !selectedUser) return null;
 
-  // 👤 LOAD USERS (buyer-seller safe)
+  // 🔥 CHAT ID FIX (VERY IMPORTANT)
+  const chatId =
+    user.uid > selectedUser.uid
+      ? user.uid + selectedUser.uid
+      : selectedUser.uid + user.uid;
+
+  // 🔁 REAL-TIME MESSAGES
   useEffect(() => {
-    const loadUsers = async () => {
-      try {
-        const data = await getUsers();
+    const q = query(
+      collection(db, "chats", chatId, "messages"),
+      orderBy("createdAt")
+    );
 
-        // safe filtering
-        const filtered = data.filter(
-          (u) => u.uid && u.uid !== currentUser.uid
-        );
+    const unsub = onSnapshot(q, (snap) => {
+      setMessages(snap.docs.map((doc) => doc.data()));
+    });
 
-        setUsers(filtered);
-      } catch (err) {
-        console.log("USER LOAD ERROR:", err);
-      }
-    };
+    return () => unsub();
+  }, [chatId]);
 
-    loadUsers();
-  }, [currentUser]);
-
-  // 💬 OPEN CHAT (FULL FIX)
-  const openChat = (user) => {
-    console.log("USER CLICKED:", user);
-
-    if (!user || !user.uid) {
-      console.log("INVALID USER");
-      return;
-    }
-
-    const id = createChatId(currentUser.uid, user.uid);
-
-    console.log("CHAT ID GENERATED:", id);
-
-    setSelectedUser(user);
-    setChatId(id);
-
-    listenMessages(id, setMessages);
-  };
-
-  // 📩 SEND MESSAGE (100% FIXED)
-  const handleSend = async () => {
-    console.log("SEND CLICKED");
-    console.log("CHAT ID:", chatId);
-    console.log("TEXT:", text);
-
+  // 📩 SEND MESSAGE
+  const sendMessage = async () => {
     if (!text.trim()) return;
 
-    if (!chatId) {
-      alert("Please select a user to start chat");
-      return;
-    }
+    await addDoc(collection(db, "chats", chatId, "messages"), {
+      text,
+      senderId: user.uid,
+      receiverId: selectedUser.uid,
+      createdAt: serverTimestamp(),
+    });
 
-    try {
-      await sendMessage(chatId, currentUser.uid, text);
-      setText("");
-    } catch (err) {
-      console.log("SEND ERROR:", err);
-    }
+    setText("");
   };
 
   return (
-    <div style={{ display: "flex", height: "80vh" }}>
+    <div style={{ padding: 10 }}>
 
-      {/* 👤 USERS LIST */}
-      <div
-        style={{
-          width: "30%",
-          borderRight: "1px solid #ddd",
-          padding: "10px",
-        }}
-      >
-        <h3>Users</h3>
+      <h3>💬 Chat with {selectedUser.name}</h3>
 
-        {users.length === 0 && <p>No users found</p>}
-
-        {users.map((u) => (
+      <div style={styles.box}>
+        {messages.map((m, i) => (
           <div
-            key={u.uid}
-            onClick={() => openChat(u)}
+            key={i}
             style={{
-              padding: "10px",
-              cursor: "pointer",
-              background:
-                selectedUser?.uid === u.uid ? "#f0f0f0" : "white",
-              borderBottom: "1px solid #eee",
+              textAlign: m.senderId === user.uid ? "right" : "left",
+              margin: 5,
             }}
           >
-            {u.name || u.email}
+            <span style={styles.msg}>{m.text}</span>
           </div>
         ))}
       </div>
 
-      {/* 💬 CHAT AREA */}
-      <div style={{ width: "70%", padding: "10px" }}>
-        <h3>
-          Chat {selectedUser ? `with ${selectedUser.name}` : ""}
-        </h3>
+      <div style={styles.inputBox}>
+        <input
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Type message..."
+          style={styles.input}
+        />
 
-        {/* MESSAGES */}
-        <div
-          style={{
-            height: "60vh",
-            overflowY: "auto",
-            border: "1px solid #ddd",
-            padding: "10px",
-          }}
-        >
-          {messages.map((m) => (
-            <div
-              key={m.id}
-              style={{
-                textAlign:
-                  m.senderId === currentUser.uid ? "right" : "left",
-                margin: "5px",
-              }}
-            >
-              <span
-                style={{
-                  display: "inline-block",
-                  padding: "6px 10px",
-                  borderRadius: "10px",
-                  background:
-                    m.senderId === currentUser.uid
-                      ? "black"
-                      : "#ddd",
-                  color:
-                    m.senderId === currentUser.uid
-                      ? "white"
-                      : "black",
-                }}
-              >
-                {m.text}
-              </span>
-            </div>
-          ))}
-        </div>
-
-        {/* INPUT */}
-        <div style={{ display: "flex", marginTop: "10px" }}>
-          <input
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            placeholder="Type message..."
-            style={{ flex: 1, padding: "8px" }}
-          />
-
-          <button
-            onClick={handleSend}
-            style={{
-              padding: "8px 15px",
-              background: "black",
-              color: "white",
-            }}
-          >
-            Send
-          </button>
-        </div>
+        <button onClick={sendMessage} style={styles.btn}>
+          Send
+        </button>
       </div>
+
     </div>
   );
 }
+
+const styles = {
+  box: {
+    height: 300,
+    overflowY: "auto",
+    border: "1px solid #ccc",
+    padding: 10,
+  },
+
+  inputBox: {
+    display: "flex",
+    marginTop: 10,
+  },
+
+  input: {
+    flex: 1,
+    padding: 10,
+  },
+
+  btn: {
+    padding: 10,
+    background: "blue",
+    color: "white",
+    border: "none",
+  },
+
+  msg: {
+    background: "#eee",
+    padding: 8,
+    borderRadius: 8,
+    display: "inline-block",
+  },
+};
+
+export default Chat;

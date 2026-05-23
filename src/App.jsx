@@ -1,20 +1,16 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import Layout from "./Layout";
-
-// Pages
-import Products from "./pages/products/Products";
-import AddProduct from "./pages/products/AddProduct";
-import ProductDetails from "./pages/products/ProductDetails";
-
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
-import ForgotPassword from "./pages/auth/ForgotPassword";
 
-import AdminDashboard from "./pages/dashboard/AdminDashboard";
+import Layout from "./Layout";
+
 import UserDashboard from "./pages/dashboard/UserDashboard";
+import Products from "./pages/products/Products";
+import AddProduct from "./pages/products/AddProduct";
+import ChatPage from "./pages/chat/ChatPage";
 
-import Chat from "./pages/chat/Chat";
+import ProtectedRoute from "./routes/ProtectedRoute";
 
 function App() {
   return (
@@ -22,22 +18,49 @@ function App() {
 
       <Routes>
 
-        {/* 🔥 ALL PAGES INSIDE LAYOUT */}
-        <Route path="/" element={<Layout />}>
+        {/* 🔐 AUTH ROUTES (NO SIDEBAR) */}
+        <Route path="/" element={<Login />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-          <Route index element={<Products />} />
+        {/* 🧑 APP ROUTES (WITH SIDEBAR) */}
+        <Route element={<Layout />}>
 
-          <Route path="add-product" element={<AddProduct />} />
-          <Route path="product/:id" element={<ProductDetails />} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <UserDashboard />
+              </ProtectedRoute>
+            }
+          />
 
-          <Route path="admin" element={<AdminDashboard />} />
-          <Route path="user" element={<UserDashboard />} />
+          <Route
+            path="/products"
+            element={
+              <ProtectedRoute>
+                <Products />
+              </ProtectedRoute>
+            }
+          />
 
-          <Route path="chat" element={<Chat />} />
+          <Route
+            path="/add-product"
+            element={
+              <ProtectedRoute>
+                <AddProduct />
+              </ProtectedRoute>
+            }
+          />
 
-          <Route path="login" element={<Login />} />
-          <Route path="register" element={<Register />} />
-          <Route path="forgot-password" element={<ForgotPassword />} />
+          <Route
+            path="/chat"
+            element={
+              <ProtectedRoute>
+                <ChatPage />
+              </ProtectedRoute>
+            }
+          />
 
         </Route>
 

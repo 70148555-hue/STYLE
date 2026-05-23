@@ -1,124 +1,80 @@
-import { useNavigate } from "react-router-dom";
-import { auth } from "../../firebase/firebase";
-import { deleteAccount, logoutUser } from "../../firebase/auth";
 import { useEffect, useState } from "react";
+import { db } from "../../firebase/firebase";
+import { collection, getDocs } from "firebase/firestore";
+import { useAuth } from "../../context/AuthContext";
 
 function UserDashboard() {
-  const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  const { user } = useAuth();
 
-  // 🔐 Load user from Firebase Auth
+  const [productCount, setProductCount] = useState(0);
+  const [userCount, setUserCount] = useState(0);
+
   useEffect(() => {
-    const currentUser = auth.currentUser;
+    const fetchData = async () => {
+      // 🟢 PRODUCTS COUNT
+      const productsSnap = await getDocs(collection(db, "products"));
+      setProductCount(productsSnap.size);
 
-    if (currentUser) {
-      setUser(currentUser);
-    } else {
-      navigate("/login");
-    }
-  }, [navigate]);
+      // 🟢 USERS COUNT
+      const usersSnap = await getDocs(collection(db, "users"));
+      setUserCount(usersSnap.size);
+    };
 
-  // 🚪 LOGOUT
-  const handleLogout = async () => {
-    try {
-      await logoutUser();
-      localStorage.removeItem("user");
-
-      alert("Logged out successfully ✔");
-      navigate("/login");
-    } catch (error) {
-      alert(error.message);
-    }
-  };
-
-  // 🗑 DELETE ACCOUNT
-  const handleDelete = async () => {
-    const confirmDelete = window.confirm(
-      "⚠ Are you sure you want to delete your account?"
-    );
-
-    if (!confirmDelete) return;
-
-    try {
-      await deleteAccount();
-
-      alert("Account deleted successfully ✔");
-
-      localStorage.removeItem("user");
-
-      navigate("/login");
-    } catch (error) {
-      console.log("DELETE ERROR:", error);
-      alert(error.message);
-    }
-  };
+    fetchData();
+  }, []);
 
   return (
-    <div style={styles.container}>
+    <div style={styles.wrapper}>
+
+      <h2>👤 User Dashboard</h2>
+
       <div style={styles.card}>
-        <h2>👤 User Dashboard</h2>
-
-        {user && (
-          <div style={styles.info}>
-            <p><b>Email:</b> {user.email}</p>
-            <p><b>UID:</b> {user.uid}</p>
-          </div>
-        )}
-
-        <button onClick={handleLogout} style={styles.logoutBtn}>
-          🚪 Logout
-        </button>
-
-        <button onClick={handleDelete} style={styles.deleteBtn}>
-          🗑 Delete Account
-        </button>
+        <p><b>Email:</b> {user?.email}</p>
+        <p><b>UID:</b> {user?.uid}</p>
       </div>
+
+      <div style={styles.grid}>
+
+        <div style={styles.box}>
+          <h3>🛍 Products</h3>
+          <p>{productCount}</p>
+        </div>
+
+        <div style={styles.box}>
+          <h3>👥 Users</h3>
+          <p>{userCount}</p>
+        </div>
+
+      </div>
+
     </div>
   );
 }
 
 const styles = {
-  container: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    height: "80vh",
+  wrapper: {
+    padding: 20,
   },
 
   card: {
-    width: 400,
-    padding: 20,
-    borderRadius: 12,
-    boxShadow: "0 0 10px rgba(0,0,0,0.1)",
     background: "#fff",
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 20,
+    boxShadow: "0 0 10px rgba(0,0,0,0.1)",
+  },
+
+  grid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+    gap: 15,
+  },
+
+  box: {
+    background: "#f8f9fa",
+    padding: 20,
+    borderRadius: 10,
     textAlign: "center",
-  },
-
-  info: {
-    margin: "10px 0",
-    textAlign: "left",
-  },
-
-  logoutBtn: {
-    width: "100%",
-    padding: 10,
-    marginTop: 10,
-    background: "#007bff",
-    color: "white",
-    border: "none",
-    borderRadius: 8,
-    cursor: "pointer",
-  },
-
-  deleteBtn: {
-    width: "100%",
-    padding: 10,
-    marginTop: 10,
-    background: "red",
-    color: "white",
-    border: "none",
-    borderRadius: 8,
-    cursor: "pointer",
   },
 };
 

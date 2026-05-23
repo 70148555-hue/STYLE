@@ -1,17 +1,33 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useEffect, useState } from "react";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../firebase/firebase";
 
-const AdminRoute = ({ children }) => {
-  const auth = useAuth();
+export default function AdminRoute({ children }) {
+  const { user, loading } = useAuth();
+  const [isAdmin, setIsAdmin] = useState(null);
 
-  if (!auth) return <Navigate to="/login" />;
+  useEffect(() => {
+    const checkRole = async () => {
+      if (!user) {
+        setIsAdmin(false);
+        return;
+      }
 
-  const { currentUser } = auth;
+      const snap = await getDoc(doc(db, "users", user.uid));
 
-  // assuming role stored in user object
-  return currentUser?.role === "admin"
-    ? children
-    : <Navigate to="/dashboard" />;
-};
+      setIsAdmin(snap.exists() && snap.data().role === "admin");
+    };
 
-export default AdminRoute;
+    checkRole();
+  }, [user]);
+
+  if (loading || isAdmin === null) return <h3>Loading...</h3>;
+
+  if (!user) return <Navigate to="/login" />;
+
+  if (!isAdmin) return <Navigate to="/dashboard" />;
+
+  return children;
+}

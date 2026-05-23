@@ -1,101 +1,135 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { getProducts, deleteProduct } from "../../firebase/products";
+import { useAuth } from "../../context/AuthContext";
 
-import { getProducts } from "../../firebase/products";
-
-export default function Products() {
-
-  // ✅ ALWAYS start with empty array
+function Products() {
   const [products, setProducts] = useState([]);
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
-
-    const fetchProducts = async () => {
-
-      try {
-
-        const data = await getProducts();
-
-        // ✅ safety check
-        if (Array.isArray(data)) {
-          setProducts(data);
-        } else {
-          setProducts([]);
-        }
-
-      } catch (error) {
-
-        console.log("Error:", error);
-
-        setProducts([]);
-      }
-    };
-
-    fetchProducts();
-
+    loadData();
   }, []);
 
+  const loadData = async () => {
+    const data = await getProducts();
+    setProducts(data);
+  };
+
+  // 🗑 DELETE PRODUCT (SECURE)
+  const handleDelete = async (product) => {
+    if (!user) return;
+
+    const isOwner = product.sellerId === user.uid;
+    const isAdmin = user.email === "admin@gmail.com";
+
+    if (!isOwner && !isAdmin) {
+      alert("Not allowed");
+      return;
+    }
+
+    await deleteProduct(product.id);
+    loadData();
+  };
+
   return (
-    <div style={{ padding: "20px" }}>
+    <div style={styles.container}>
 
-      <h1>🛍 Clothing Products</h1>
+      {/* 🔥 HEADER */}
+      <div style={styles.header}>
+        <h2>🛍 Products</h2>
 
-      <div
-        style={{
-          display: "flex",
-          gap: "20px",
-          flexWrap: "wrap",
-          marginTop: "20px",
-        }}
-      >
+        <button
+          style={styles.addBtn}
+          onClick={() => navigate("/add-product")}
+        >
+          ➕ Add Product
+        </button>
+      </div>
 
-        {products.length > 0 ? (
-
-          products.map((p) => (
-
-            <Link
-              key={p.id}
-              to={`/product/${p.id}`}
-              style={{
-                textDecoration: "none",
-                color: "black",
-              }}
-            >
-
-              <div
-                style={{
-                  border: "1px solid #ddd",
-                  padding: "10px",
-                  width: "220px",
-                  borderRadius: "10px",
-                }}
-              >
-
-                <img
-                  src={p.image}
-                  alt={p.name}
-                  width="200"
-                  height="200"
-                  style={{ objectFit: "cover" }}
-                />
-
-                <h3>{p.name}</h3>
-
-                <p>Rs {p.price}</p>
-
-              </div>
-
-            </Link>
-          ))
-
-        ) : (
-
+      {/* 🔥 PRODUCTS GRID */}
+      <div style={styles.grid}>
+        {products.length === 0 ? (
           <p>No products found</p>
+        ) : (
+          products.map((p) => (
+            <div key={p.id} style={styles.card}>
 
+              <img src={p.image} alt="" style={styles.img} />
+
+              <h3>{p.name}</h3>
+              <p>💰 {p.price}</p>
+              <p>{p.description}</p>
+
+              {/* 🔥 DELETE ONLY OWNER OR ADMIN */}
+              {(p.sellerId === user?.uid ||
+                user?.email === "admin@gmail.com") && (
+                <button
+                  style={styles.deleteBtn}
+                  onClick={() => handleDelete(p)}
+                >
+                  Delete
+                </button>
+              )}
+
+            </div>
+          ))
         )}
-
       </div>
 
     </div>
   );
 }
+
+const styles = {
+  container: {
+    padding: 20,
+  },
+
+  header: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  addBtn: {
+    padding: "10px 15px",
+    background: "green",
+    color: "white",
+    border: "none",
+    cursor: "pointer",
+  },
+
+  grid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+    gap: 15,
+    marginTop: 20,
+  },
+
+  card: {
+    border: "1px solid #ddd",
+    padding: 10,
+    borderRadius: 10,
+    background: "#fff",
+  },
+
+  img: {
+    width: "100%",
+    height: 150,
+    objectFit: "cover",
+    borderRadius: 8,
+  },
+
+  deleteBtn: {
+    marginTop: 10,
+    background: "red",
+    color: "white",
+    border: "none",
+    padding: 8,
+    cursor: "pointer",
+  },
+};
+
+export default Products;
