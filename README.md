@@ -52,8 +52,32 @@ https://github.com/70148555-hue/STYLE.git
 ---
 
 ## 📸 Screenshots
-(Add screenshots here)
+![LOGIN SS](./src/assets/SCREENSHOTS/login.PNG)
 
+![REGISTER](./src/assets/SCREENSHOTS/register.PNG)
+
+![googile-login](./src/assets/SCREENSHOTS/googolelogin.PNG)
+
+![forget-password](./src/assets/SCREENSHOTS/forgetpassword.PNG)
+
+![dashborad](./src/assets/SCREENSHOTS/userdashboard.PNG)
+
+![product-list](./src/assets/SCREENSHOTS/productlist1.PNG)
+![pl](./src/assets/SCREENSHOTS/list2.PNG)
+
+![add-product](./src/assets/SCREENSHOTS/addproduct.PNG)
+
+![delete-product](./src/assets/SCREENSHOTS/deleteproduct.PNG)
+
+![select](./src/assets/SCREENSHOTS/select%20user.PNG)
+
+![chat-user](./src/assets/SCREENSHOTS/chatuser.PNG)
+
+![chat-admin](./src/assets/SCREENSHOTS/chatadmin.PNG)
+
+![collection](./src/assets/SCREENSHOTS/firebase%20collection.PNG)
+
+![auth](./src/assets/SCREENSHOTS/auth.PNG)
 ---
 
 ## 👨‍💻 Developer
